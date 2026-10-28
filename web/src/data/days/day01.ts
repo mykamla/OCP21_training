@@ -159,10 +159,19 @@ System.out.println((char)n);`,
 }`,
     choices: ['true true', 'true false', 'false false', 'false true'],
     correct: 1,
-    correctWhy: 'Le cache Integer pour −128..127 fait que a et b partagent la même instance. 128 n’est pas mis en cache → c != d en référence.',
-    wrongWhy: '== sur Integer compare les références, pas la valeur numérique (sauf unboxing dans d’autres contextes).',
-    javaRule: 'Integer.valueOf (autoboxing) met en cache au moins −128..127. Au-delà, nouvelles instances possibles.',
-    trap: 'Utiliser == pour comparer des Integer hors de la plage du cache.',
+    correctWhy:
+      'Étape par étape : (1) a == b et c == d comparent des références d’objets Integer, pas la valeur numérique. ' +
+      '(2) L’écriture Integer a = 127 est un autoboxing via Integer.valueOf(127). Pour les valeurs de −128 à 127, valueOf réutilise toujours la même instance mise en cache → a et b pointent vers le même objet, donc a == b vaut true. ' +
+      '(3) 128 est hors de cette plage : valueOf(128) peut créer (et crée ici) deux instances distinctes → c et d ne sont pas le même objet, donc c == d vaut false. Sortie : true false. ' +
+      'Pour comparer la valeur, utilisez a.equals(b) ou a.intValue() == b.intValue() (attention au null).',
+    wrongWhy:
+      '== entre deux références Integer ne compare pas « est-ce le même nombre ? », mais « est-ce le même objet en mémoire ? ». ' +
+      'On confond souvent avec int == int (primitives), où == compare bien les valeurs. Ici a, b, c et d sont des Integer.',
+    javaRule:
+      'Integer.valueOf (et donc l’autoboxing) met en cache au moins la plage −128..127 : une même valeur dans cette plage → même instance. ' +
+      'Au-delà, de nouvelles instances sont autorisées. Pour comparer la valeur de deux Integer, utilisez equals (pas ==).',
+    trap:
+      'Écrire == entre des Integer hors du cache (−128..127) : deux autoboxings de 128 (ou 1000, etc.) donnent souvent false alors que la valeur est la même.',
   }),
   q({
     n: 9,
